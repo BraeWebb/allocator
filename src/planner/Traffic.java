@@ -106,8 +106,9 @@ public class Traffic {
      *         greater than zero
      */
     public Set<Corridor> getCorridorsWithTraffic() {
-        // TODO: ensure this is safe
-        return people.keySet();
+        Set<Corridor> newSet = new HashSet<Corridor>();
+        newSet.addAll(people.keySet());
+        return newSet;
     }
 
     /**
