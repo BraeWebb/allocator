@@ -16,7 +16,17 @@ public class Traffic {
 
     private HashMap<Corridor, Integer> people;
 
-    // REMOVE THIS LINE AND INSERT YOUR CLASS INVARIANT HERE
+    /*
+     * invariant:
+     *
+     * people != null &&
+     *
+     * keys of people are not null &&
+     *
+     * values of people are not null &&
+     *
+     * values of people are greater than or equal to zero
+     */
 
     /**
      * <p>
@@ -263,7 +273,21 @@ public class Traffic {
      * @return true if this class is internally consistent, and false otherwise.
      */
     public boolean checkInvariant() {
-        return false; // REMOVE THIS LINE AND WRITE THIS METHOD
+        if(people == null){
+            return false;
+        }
+        for(Corridor c: people.keySet()){
+            if(c == null) {
+                return false;
+            }
+            if(people.get(c) == null){
+                return false;
+            }
+            if(people.get(c) < 0){
+                return false;
+            }
+        }
+        return true;
     }
 
 }
