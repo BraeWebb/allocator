@@ -14,7 +14,9 @@ package planner;
  */
 public class Corridor implements Comparable<Corridor> {
 
-    // REMOVE THIS LINE AND INSERT YOUR INSTANCE VARIABLES HERE
+    private Location start;
+    private Location end;
+    private int capacity;
 
     // REMOVE THIS LINE AND INSERT YOUR CLASS INVARIANT HERE
 
@@ -36,7 +38,18 @@ public class Corridor implements Comparable<Corridor> {
      *             is less than or equal to zero
      */
     public Corridor(Location start, Location end, int capacity) {
-        // REMOVE THIS LINE AND WRITE THIS METHOD
+        if(start == null || end == null){
+            throw new NullPointerException("the start and end locations must not be null");
+        }
+        if(start.equals(end)){
+            throw new IllegalArgumentException("the start and end locations must be different");
+        }
+        if(capacity <= 0){
+            throw new IllegalArgumentException("capacity must be greater than zero");
+        }
+        this.start = start;
+        this.end = end;
+        this.capacity = capacity;
     }
 
     /**
@@ -45,7 +58,7 @@ public class Corridor implements Comparable<Corridor> {
      * @return the start location
      */
     public Location getStart() {
-        return null; // REMOVE THIS LINE AND WRITE THIS METHOD
+        return start;
     }
 
     /**
@@ -54,7 +67,7 @@ public class Corridor implements Comparable<Corridor> {
      * @return the end location
      */
     public Location getEnd() {
-        return null; // REMOVE THIS LINE AND WRITE THIS METHOD
+        return end;
     }
 
     /**
@@ -63,7 +76,7 @@ public class Corridor implements Comparable<Corridor> {
      * @return the maximum capacity of this traffic corridor
      */
     public int getCapacity() {
-        return 0; // REMOVE THIS LINE AND WRITE THIS METHOD
+        return capacity;
     }
 
     /**
@@ -83,7 +96,7 @@ public class Corridor implements Comparable<Corridor> {
      */
     @Override
     public String toString() {
-        return null; // REMOVE THIS LINE AND WRITE THIS METHOD
+        return "Corridor " + start.toString() + " to " + end.toString() + " (" + capacity + ")";
     }
 
     /**
@@ -102,12 +115,25 @@ public class Corridor implements Comparable<Corridor> {
      */
     @Override
     public boolean equals(Object object) {
-        return super.equals(object); // REMOVE THIS LINE AND WRITE THIS METHOD
+        if(! (object instanceof Corridor)){
+            return false;
+        }
+        Corridor c = (Corridor) object;
+        return start.equals(c.start) && end.equals(c.end) && capacity == c.capacity;
     }
 
+    /**
+     * Produces a hashcode which somewhat unique based on the start location, end lcoation
+     * and the capacity of the venue.
+     * @return the hashcode of the corridor object
+     */
     @Override
     public int hashCode() {
-        return super.hashCode(); // REMOVE THIS LINE AND WRITE THIS METHOD
+        int result = 11;
+        result = 2017 * result + start.hashCode();
+        result = 2017 * result + end.hashCode();
+        result = 2017 * result + capacity;
+        return result;
     }
 
     /**
@@ -135,7 +161,13 @@ public class Corridor implements Comparable<Corridor> {
      */
     @Override
     public int compareTo(Corridor other) {
-        return 0; // REMOVE THIS LINE AND WRITE THIS METHOD
+        if(! start.equals(other.start)){
+            return start.compareTo(other.start);
+        }
+        if(! end.equals(other.end)){
+            return end.compareTo(other.end);
+        }
+        return capacity - other.capacity;
     }
 
     /**
