@@ -18,7 +18,17 @@ public class Corridor implements Comparable<Corridor> {
     private Location end;
     private int capacity;
 
-    // REMOVE THIS LINE AND INSERT YOUR CLASS INVARIANT HERE
+    /*
+     * invariant:
+     *
+     * start != null &&
+     *
+     * end != null &&
+     *
+     * start != end &&
+     *
+     * capacity > 0
+     */
 
     /**
      * Creates a new traffic corridor with the given start and end locations,
@@ -183,7 +193,16 @@ public class Corridor implements Comparable<Corridor> {
      * @return true if this class is internally consistent, and false otherwise.
      */
     public boolean checkInvariant() {
-        return false; // REMOVE THIS LINE AND WRITE THIS METHOD
+        if(start == null || end == null){
+            return false;
+        }
+        if(start == end){
+            return false;
+        }
+        if(capacity <= 0){
+            return false;
+        }
+        return true;
     }
 
 }
