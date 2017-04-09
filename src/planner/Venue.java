@@ -32,7 +32,17 @@ public class Venue {
     private int capacity;
     private Traffic capacityTraffic;
 
-    // REMOVE THIS LINE AND INSERT YOUR CLASS INVARIANT HERE
+    /*
+     * invariant:
+     *
+     * name != null &&
+     *
+     * capacityTraffic != null &&
+     *
+     * capacity > 0 &&
+     *
+     * values of capacityTraffic > capacity
+     */
 
     /**
      * Creates a new venue with the given name, and capacity, that generates the
@@ -227,7 +237,15 @@ public class Venue {
      * @return true if this class is internally consistent, and false otherwise.
      */
     public boolean checkInvariant() {
-        return false; // REMOVE THIS LINE AND WRITE THIS METHOD
+        if(name == null || capacityTraffic == null || capacity <= 0){
+            return false;
+        }
+        for(Corridor c: capacityTraffic.getCorridorsWithTraffic()){
+            if(capacityTraffic.getTraffic(c) > capacity){
+                return false;
+            }
+        }
+        return true;
     }
 
 }
