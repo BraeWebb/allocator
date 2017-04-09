@@ -1,4 +1,4 @@
-#Programming in the Large (CSSE2002)
+# Programming in the Large (CSSE2002)
 ### Assignment 1
 
 This project implements the first component of an event scheduling system which 
