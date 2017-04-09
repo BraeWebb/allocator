@@ -14,8 +14,11 @@ package planner;
  */
 public class Corridor implements Comparable<Corridor> {
 
+    // the corridors starting location
     private Location start;
+    // the corridors ending location
     private Location end;
+    // the maximum capacity of the corridor
     private int capacity;
 
     /*
@@ -48,6 +51,7 @@ public class Corridor implements Comparable<Corridor> {
      *             is less than or equal to zero
      */
     public Corridor(Location start, Location end, int capacity) {
+        // ensure that the given parameters are valid
         if(start == null || end == null){
             throw new NullPointerException("the start and end locations must not be null");
         }
@@ -57,6 +61,7 @@ public class Corridor implements Comparable<Corridor> {
         if(capacity <= 0){
             throw new IllegalArgumentException("capacity must be greater than zero");
         }
+        // assign the given parameters to the class variables
         this.start = start;
         this.end = end;
         this.capacity = capacity;
@@ -125,10 +130,12 @@ public class Corridor implements Comparable<Corridor> {
      */
     @Override
     public boolean equals(Object object) {
+        // ensure that the object is a Corridor
         if(! (object instanceof Corridor)){
             return false;
         }
         Corridor c = (Corridor) object;
+        // check each class variable is equal to the others class variables
         return start.equals(c.start) && end.equals(c.end) && capacity == c.capacity;
     }
 
@@ -171,12 +178,15 @@ public class Corridor implements Comparable<Corridor> {
      */
     @Override
     public int compareTo(Corridor other) {
+        // first compare based on start if start locations aren't equal
         if(! start.equals(other.start)){
             return start.compareTo(other.start);
         }
+        // second compare based on end if end locations aren't equal
         if(! end.equals(other.end)){
             return end.compareTo(other.end);
         }
+        // if both start and end locations are equal compare based on capacity
         return capacity - other.capacity;
     }
 
