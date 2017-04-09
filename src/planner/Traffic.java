@@ -14,6 +14,7 @@ import java.util.*;
  */
 public class Traffic {
 
+    // hashmap which maps corridors to their present capacity
     private HashMap<Corridor, Integer> people;
 
     /*
@@ -65,6 +66,7 @@ public class Traffic {
             throw new NullPointerException("initialTraffic must not be null");
         }
         people = new HashMap<>();
+        // deep copy the values of the initial traffic people hashmap to the objects people variable
         for(Corridor c: initialTraffic.people.keySet()){
             people.put(c, initialTraffic.people.get(c));
         }
@@ -92,6 +94,7 @@ public class Traffic {
         if(corridor == null){
             throw new NullPointerException("corridor must not be null");
         }
+        // if the traffic object does not know about the corridor return 0
         if(!people.containsKey(corridor)){
             return 0;
         }
@@ -106,6 +109,7 @@ public class Traffic {
      *         greater than zero
      */
     public Set<Corridor> getCorridorsWithTraffic() {
+        // deep copy the keys of the people hashmap to a new variable and return that variable
         Set<Corridor> newSet = new HashSet<Corridor>();
         newSet.addAll(people.keySet());
         return newSet;
@@ -134,6 +138,8 @@ public class Traffic {
         if(other == null){
             throw new NullPointerException("the other traffic must not be null");
         }
+        // base whether the traffic classes are equal on whether the people hashmap
+        // is equal as the people hashmap is the sole class variable
         return people.equals(other.people);
     }
 
@@ -166,11 +172,15 @@ public class Traffic {
             throw new NullPointerException("corridor must not be null");
         }
         if(!people.containsKey(corridor)){
+            // if the people hashmap does not contain the corridor ensure that the given amount is
+            // above zero and place that corridor and amount mapping into the people hashmap
             if(amount < 0){
                 throw new InvalidTrafficException("the initial amount of traffic must not be negative");
             }
             people.put(corridor, amount);
         }else{
+            // if the people hashmap contains the corridor ensure that the given amount plus the current amount is
+            // above zero and replace the current amount with the new amount plus current amount
             int newTraffic = people.get(corridor) + amount;
             if(newTraffic < 0){
                 throw new InvalidTrafficException("the result of adding amount to the current traffic must not be null");
@@ -206,7 +216,10 @@ public class Traffic {
         if(extraTraffic == null){
             throw new NullPointerException("extraTraffic must not be null");
         }
+        // loop through each corridor in the other traffic object
         for(Corridor c: extraTraffic.people.keySet()){
+            // if the current object contains the corridor add the old value to the new value
+            // else if the current object does not contain the corridor just add the new value
             if(people.containsKey(c)) {
                 people.replace(c, people.get(c) + extraTraffic.people.get(c));
             }else{
@@ -250,11 +263,14 @@ public class Traffic {
      */
     @Override
     public String toString() {
+        // convert the people keySet into a sortable collection and sort that collection
         ArrayList<Corridor> corridors = new ArrayList<>();
         corridors.addAll(people.keySet());
         Collections.sort(corridors);
 
+        // define a blank output
         String output = "";
+        // loop through each corridor in order appending the required text to the blank output string
         for(Corridor c: corridors){
             output = output + (c.toString() + ": " + people.get(c) + System.getProperty("line.separator"));
         }
