@@ -28,7 +28,9 @@ package planner;
  */
 public class Venue {
 
-    // REMOVE THIS LINE AND INSERT YOUR INSTANCE VARIABLES HERE
+    private String name;
+    private int capacity;
+    private Traffic capacityTraffic;
 
     // REMOVE THIS LINE AND INSERT YOUR CLASS INVARIANT HERE
 
@@ -56,7 +58,20 @@ public class Venue {
      *             the venue.)
      */
     public Venue(String name, int capacity, Traffic capacityTraffic) {
-        // REMOVE THIS LINE AND WRITE THIS METHOD
+        if(name == null || capacityTraffic == null){
+            throw new NullPointerException("the venue name and capacity traffic must not be null");
+        }
+        if(capacity <= 0){
+            throw new IllegalArgumentException("the venue capacity must be greater than zero");
+        }
+        for(Corridor c: capacityTraffic.getCorridorsWithTraffic()){
+            if(capacityTraffic.getTraffic(c) > capacity){
+                throw new InvalidTrafficException("traffic in any given corridor must not exceed the venue capacity");
+            }
+        }
+        this.name = name;
+        this.capacity = capacity;
+        this.capacityTraffic = capacityTraffic;
     }
 
     /**
@@ -65,7 +80,7 @@ public class Venue {
      * @return the name of the venue
      */
     public String getName() {
-        return null; // REMOVE THIS LINE AND WRITE THIS METHOD
+        return name;
     }
 
     /**
@@ -74,7 +89,7 @@ public class Venue {
      * @return the capacity of the venue
      */
     public int getCapacity() {
-        return -1; // REMOVE THIS LINE AND WRITE THIS METHOD
+        return capacity;
     }
 
     /**
@@ -89,7 +104,10 @@ public class Venue {
      *             if event is null
      */
     public boolean canHost(Event event) {
-        return false; // REMOVE THIS LINE AND WRITE THIS METHOD
+        if(event == null){
+            throw new NullPointerException("the event must not be null");
+        }
+        return event.getSize() <= capacity;
     }
 
     /**
@@ -120,7 +138,18 @@ public class Venue {
      *             if the size of the event exceeds the capacity of the venue
      */
     public Traffic getTraffic(Event event) {
-        return null; // REMOVE THIS LINE AND WRITE THIS METHOD
+        if(event == null){
+            throw new NullPointerException("the event must not be null");
+        }
+        if(event.getSize() > capacity){
+            throw new IllegalArgumentException("the size of the event must not exceed the capacity of the venue");
+        }
+        Traffic traffic = new Traffic();
+        for(Corridor c: capacityTraffic.getCorridorsWithTraffic()){
+            int newTraffic = (event.getSize() * capacityTraffic.getTraffic(c)) / capacity;
+            traffic.updateTraffic(c, newTraffic);
+        }
+        return traffic;
     }
 
     /**
@@ -139,7 +168,7 @@ public class Venue {
      */
     @Override
     public String toString() {
-        return null; // REMOVE THIS LINE AND WRITE THIS METHOD
+        return name + " (" + capacity + ")" + System.getProperty("line.separator") + capacityTraffic.toString();
     }
 
     /**
@@ -160,12 +189,29 @@ public class Venue {
      */
     @Override
     public boolean equals(Object object) {
-        return super.equals(object); // REMOVE THIS LINE AND WRITE THIS METHOD
+        if(! (object instanceof Venue)){
+            return false;
+        }
+        Venue v = (Venue) object;
+        return name.equals(v.getName()) && capacity == v.getCapacity()
+                && capacityTraffic.sameTraffic(v.getTraffic(new Event("capacity", v.getCapacity())));
     }
 
+    /**
+     * Produces a hashcode based on the venue name, capacity, corridors with
+     * traffic and the traffic in those corridors.
+     * @return the hashcode of the corridor object
+     */
     @Override
     public int hashCode() {
-        return super.hashCode(); // REMOVE THIS LINE AND WRITE THIS METHOD
+        int result = 11;
+        result = 2017 * result + name.hashCode();
+        result = 2017 * result + capacity;
+        for (Corridor c : capacityTraffic.getCorridorsWithTraffic()){
+            result = 2017 * result + c.hashCode();
+            result = 2017 * result + capacityTraffic.getTraffic(c);
+        }
+        return result;
     }
 
     /**
