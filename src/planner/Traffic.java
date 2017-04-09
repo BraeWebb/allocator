@@ -14,7 +14,7 @@ import java.util.*;
  */
 public class Traffic {
 
-    // REMOVE THIS LINE AND INSERT YOUR INSTANCE VARIABLES HERE
+    private HashMap<Corridor, Integer> people;
 
     // REMOVE THIS LINE AND INSERT YOUR CLASS INVARIANT HERE
 
@@ -29,7 +29,7 @@ public class Traffic {
      * </p>
      */
     public Traffic() {
-        // REMOVE THIS LINE AND WRITE THIS METHOD
+        people = new HashMap<>();
     }
 
     /**
@@ -51,7 +51,13 @@ public class Traffic {
      *             if initialTraffic is null
      */
     public Traffic(Traffic initialTraffic) {
-        // REMOVE THIS LINE AND WRITE THIS METHOD
+        if(initialTraffic == null){
+            throw new NullPointerException("initialTraffic must not be null");
+        }
+        people = new HashMap<>();
+        for(Corridor c: initialTraffic.people.keySet()){
+            people.put(c, initialTraffic.people.get(c));
+        }
     }
 
     /**
@@ -73,7 +79,13 @@ public class Traffic {
      *             if the parameter corridor is null
      */
     public int getTraffic(Corridor corridor) {
-        return -1; // REMOVE THIS LINE AND WRITE THIS METHOD
+        if(corridor == null){
+            throw new NullPointerException("corridor must not be null");
+        }
+        if(!people.containsKey(corridor)){
+            return 0;
+        }
+        return people.get(corridor);
     }
 
     /**
@@ -84,7 +96,8 @@ public class Traffic {
      *         greater than zero
      */
     public Set<Corridor> getCorridorsWithTraffic() {
-        return null; // REMOVE THIS LINE AND WRITE THIS METHOD
+        // TODO: ensure this is safe
+        return people.keySet();
     }
 
     /**
@@ -107,7 +120,10 @@ public class Traffic {
      *             if other is null
      */
     public boolean sameTraffic(Traffic other) {
-        return false; // REMOVE THIS LINE AND WRITE THIS METHOD
+        if(other == null){
+            throw new NullPointerException("the other traffic must not be null");
+        }
+        return people.equals(other.people);
     }
 
     /**
@@ -135,7 +151,21 @@ public class Traffic {
      *             on the given corridor is negative (i.e. less than zero).
      */
     public void updateTraffic(Corridor corridor, int amount) {
-        // REMOVE THIS LINE AND WRITE THIS METHOD
+        if(corridor == null){
+            throw new NullPointerException("corridor must not be null");
+        }
+        if(!people.containsKey(corridor)){
+            if(amount < 0){
+                throw new InvalidTrafficException("the initial amount of traffic must not be negative");
+            }
+            people.put(corridor, amount);
+        }else{
+            int newTraffic = people.get(corridor) + amount;
+            if(newTraffic < 0){
+                throw new InvalidTrafficException("the result of adding amount to the current traffic must not be null");
+            }
+            people.replace(corridor, newTraffic);
+        }
     }
 
     /**
@@ -162,7 +192,12 @@ public class Traffic {
      *             if extraTraffic is null
      */
     public void addTraffic(Traffic extraTraffic) {
-        // REMOVE THIS LINE AND WRITE THIS METHOD
+        if(extraTraffic == null){
+            throw new NullPointerException("extraTraffic must not be null");
+        }
+        for(Corridor c: extraTraffic.people.keySet()){
+            people.replace(c, people.get(c) + extraTraffic.people.get(c));
+        }
     }
 
     /**
@@ -200,7 +235,15 @@ public class Traffic {
      */
     @Override
     public String toString() {
-        return null; // REMOVE THIS LINE AND WRITE THIS METHOD
+        ArrayList<Corridor> corridors = new ArrayList<>();
+        corridors.addAll(people.keySet());
+        Collections.sort(corridors);
+
+        String output = "";
+        for(Corridor c: corridors){
+            output = output + (c.toString() + ": " + people.get(c) + System.getProperty("line.separator"));
+        }
+        return output;
     }
 
     /**
