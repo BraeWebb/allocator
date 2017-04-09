@@ -209,10 +209,7 @@ public class Corridor implements Comparable<Corridor> {
         if(start == end){
             return false;
         }
-        if(capacity <= 0){
-            return false;
-        }
-        return true;
+        return capacity > 0;
     }
 
 }
