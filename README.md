@@ -10,4 +10,6 @@ This assignment implements three classes to help with this:
 * Venue
 * Traffic
 
+See the assignment sheet for more information about the tasks presented by this assignment.
+
 **See javadocs for more detais**
