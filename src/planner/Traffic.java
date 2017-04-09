@@ -196,7 +196,11 @@ public class Traffic {
             throw new NullPointerException("extraTraffic must not be null");
         }
         for(Corridor c: extraTraffic.people.keySet()){
-            people.replace(c, people.get(c) + extraTraffic.people.get(c));
+            if(people.containsKey(c)) {
+                people.replace(c, people.get(c) + extraTraffic.people.get(c));
+            }else{
+                people.put(c, extraTraffic.people.get(c));
+            }
         }
     }
 
