@@ -44,7 +44,7 @@ public class Venue {
      *
      * capacity > 0 &&
      *
-     * values of capacityTraffic > capacity
+     * traffic values of capacityTraffic < capacity
      */
 
     /**

@@ -14,7 +14,7 @@ import java.util.*;
  */
 public class Traffic {
 
-    // hashmap which maps corridors to their present capacity
+    // hashmap which maps corridors to their present amount of traffic
     private HashMap<Corridor, Integer> people;
 
     /*
@@ -22,11 +22,11 @@ public class Traffic {
      *
      * people != null &&
      *
-     * keys of people are not null &&
+     * corridor keys of people are not null &&
      *
-     * values of people are not null &&
+     * traffic of each corridor is not null &&
      *
-     * values of people are greater than or equal to zero
+     * traffic of each corridor is greater than or equal to zero
      */
 
     /**
