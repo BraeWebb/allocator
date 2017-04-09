@@ -123,7 +123,7 @@ public class Corridor implements Comparable<Corridor> {
     }
 
     /**
-     * Produces a hashcode which somewhat unique based on the start location, end lcoation
+     * Produces a hashcode based on the start location, end location
      * and the capacity of the venue.
      * @return the hashcode of the corridor object
      */
