@@ -112,108 +112,183 @@ public class VenueReader {
      */
     public static List<Venue> read(String fileName) throws IOException,
             FormatException {
-        FileReader fileReader;
-        try {
-            fileReader = new FileReader(fileName);
-        } catch (FileNotFoundException exception) {
-            throw new IOException();
-        }
-        Scanner scanner = new Scanner(fileReader);
+
+        // stores the venues loaded from the file
         ArrayList<Venue> venues = new ArrayList<>();
-        Venue currentVenue = null;
+        // the appropriate readers and scanners to allow iteration of the files
+        FileReader fileReader;
+        Scanner scanner;
+
+        try {
+            // load the file reader and file scanner
+            fileReader = new FileReader(fileName);
+            scanner = new Scanner(fileReader);
+        } catch (FileNotFoundException e) {
+            throw new IOException("The provided file " + fileName +
+                    " could not be found");
+        }
+
+        // stores temporary information about the venue that persist through
+        // each line
         String venueName = null;
         int venueCapacity = -1;
         Traffic traffic = new Traffic();
+        int venueLine = 0;
+
+        // define the line so that it can be used at the end of the loop
         String line = "";
+        // stores the current line number for error logging
         int lineNumber = 0;
+
+        // loop through each line in the file
         while (scanner.hasNextLine()) {
-            lineNumber++;
+
             line = scanner.nextLine();
+            lineNumber++;
+
+            // if the line is empty create the venue based on the information
+            // currently stored
             if (line.trim().isEmpty()){
-                if (venueName == null){
-                    throw new FormatException();
+                if (venueName == null || venueCapacity == -1){
+                    throw new FormatException("A new line was encountered " +
+                            "before a venue was defined at line "
+                            + lineNumber + ".");
                 }
+                Venue venue;
                 try {
-                    currentVenue = new Venue(venueName, venueCapacity, traffic);
-                } catch (InvalidTrafficException|NullPointerException exception) {
-                    throw new FormatException();
+                    venue = new Venue(venueName, venueCapacity, traffic);
+                } catch (InvalidTrafficException e) {
+                    throw new FormatException("Traffic in at least one " +
+                            "corridor is greater than the maximum capacity " +
+                            "of the venue.");
+                } catch (IllegalArgumentException e){
+                    throw new FormatException("Traffic of the venue at line "
+                            + venueLine + " is less than or equal to zero.");
                 }
-                if (venues.contains(currentVenue)) {
-                    throw new FormatException();
+                if (venues.contains(venue)) {
+                    throw new FormatException("Duplicate venue found starting" +
+                            " at line " + venueLine);
                 }
+                // reset venue variables to their original state
                 venueName = null;
                 venueCapacity = -1;
                 traffic = new Traffic();
-                venues.add(currentVenue);
+
+                // add the new venue to the venue list
+                venues.add(venue);
+
                 continue;
             }
 
+            // when venue hasn't been named name it the first non-empty line
             if(venueName == null){
                 venueName = line;
+                venueLine = lineNumber;
             }
+            // when the venue capacity hasn't been assigned try to assign it
             else if(venueCapacity == -1){
                 try {
                     venueCapacity = Integer.parseInt(line.trim());
                 } catch (NumberFormatException exception){
-                    throw new FormatException();
+                    throw new FormatException("Venue capacity at line " +
+                            lineNumber + " is not an integer.");
                 }
+            // any other lines should correspond to corridors
             } else {
-                String[] values = line.split("\\s*,\\s|\\s*:\\s");
-                if (values.length != 4){
-                    throw new FormatException();
+                // split the line up into the values expected
+                // could probably have been combined
+                // String[] capacity = locations[2].split("\\s*:\\s");
+                String[] locations = line.split("\\s*,\\s");
+                // ensure there are the correct amount of values
+                if (locations.length != 3){
+                    throw new FormatException("Corridor is incorrectly " +
+                            "formatted on line " + lineNumber);
                 }
-                if (values[0].isEmpty() || values[1].isEmpty()){
-                    throw new FormatException();
+
+                // split the last value into the capacity and traffic
+                String[] capacityTraffic = locations[2].split("\\s*:\\s");
+                // ensure there are the correct amount of values
+                if (capacityTraffic.length != 2){
+                    throw new FormatException("Corridor is incorrectly " +
+                            "formatted on line " + lineNumber);
                 }
-                Location start = new Location(values[0]);
-                Location end = new Location(values[1]);
-                int capacity = Integer.parseInt(values[2]);
+
+                // ensure that the start location and end locations are not empty
+                if (locations[0].isEmpty() || locations[1].isEmpty()){
+                    throw new FormatException("The start or end location " +
+                            "names were empty on line " + lineNumber);
+                }
+
+                Location start = new Location(locations[0]);
+                Location end = new Location(locations[1]);
+
+                int capacity;
+                // try to convert the capacity into an integer
+                try {
+                    capacity = Integer.parseInt(capacityTraffic[0]);
+                } catch (NumberFormatException e){
+                    throw new FormatException("The capacity of the corridor " +
+                            "on line " + lineNumber + " was not an integer " +
+                            "(found: " + capacityTraffic[0] + ")");
+                }
+
                 Corridor corridor;
                 try {
                     corridor = new Corridor(start, end, capacity);
-                } catch (IllegalArgumentException|NullPointerException exception){
-                    throw new FormatException();
+                }  catch (IllegalArgumentException e){
+                    // if the locations are equal raise a format exception
+                    if (capacity > 0) {
+                        throw new FormatException("Start and end locations " +
+                                "of the corridor on line " + lineNumber
+                                + " are equal");
+                    }
+                    // ensure that the capacity of the corridor is positive
+                    throw new FormatException("Capacity of the corridor on " +
+                            "line " + lineNumber + " was less than or equal " +
+                            "to zero");
                 }
+
+                // ensure that the corridor is not a duplicate
                 if (traffic.getCorridorsWithTraffic().contains(corridor)){
-                    throw new FormatException();
+                    throw new FormatException("Corridor only line " + lineNumber
+                            + " is already described for the venue.");
                 }
-                int trafficAmount = Integer.parseInt(values[3]);
+
+                int trafficAmount;
+                // try to convert the capacity into an integer
+                try {
+                    trafficAmount = Integer.parseInt(capacityTraffic[1]);
+                } catch (NumberFormatException e){
+                    throw new FormatException("The traffic of the corridor " +
+                            "on line " + lineNumber + " was not an integer " +
+                            "(found: " + capacityTraffic[1] + ")");
+                }
+
+                // ensure that the traffic does not exceed the capacity
                 if (trafficAmount > corridor.getCapacity()){
-                    throw new FormatException();
+                    throw new FormatException("Traffic of the corridor on line "
+                            + lineNumber + " exceeds the capacity.");
                 }
+
+                // update the traffic with the new corridor and traffic
+                // retrieved from the file
                 try {
                     traffic.updateTraffic(corridor, trafficAmount);
                 } catch (InvalidTrafficException exception){
-                    throw new FormatException();
+                    throw new FormatException("Traffic on the corridor on line "
+                            + lineNumber + " is negative");
                 }
             }
         }
+        // ensure that the last line of the file is not empty
         if(!line.isEmpty()){
-            throw new FormatException();
+            throw new FormatException("The last line of the file must be empty");
         }
 
+        // close the file and scanner used to read the file
+        fileReader.close();
         scanner.close();
         return venues;
     }
 
-    private class IncrementalVenue {
-        private String name;
-        private int capacity;
-        private Traffic traffic;
-
-        public IncrementalVenue(){
-            capacity = -1;
-            traffic = new Traffic();
-        }
-
-        public boolean hasName(){
-            return name != null;
-        }
-
-        public boolean hasCapacity(){
-            return capacity != -1;
-        }
-    }
-
 }
-
