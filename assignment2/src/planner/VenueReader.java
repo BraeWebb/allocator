@@ -195,89 +195,7 @@ public class VenueReader {
                 }
             // any other lines should correspond to corridors
             } else {
-                // split the line up into the values expected
-                // could probably have been combined
-                // String[] capacity = locations[2].split("\\s*:\\s");
-                String[] locations = line.split("\\s*,\\s");
-                // ensure there are the correct amount of values
-                if (locations.length != 3){
-                    throw new FormatException("Corridor is incorrectly " +
-                            "formatted on line " + lineNumber);
-                }
-
-                // split the last value into the capacity and traffic
-                String[] capacityTraffic = locations[2].split("\\s*:\\s");
-                // ensure there are the correct amount of values
-                if (capacityTraffic.length != 2){
-                    throw new FormatException("Corridor is incorrectly " +
-                            "formatted on line " + lineNumber);
-                }
-
-                // ensure that the start location and end locations are not empty
-                if (locations[0].isEmpty() || locations[1].isEmpty()){
-                    throw new FormatException("The start or end location " +
-                            "names were empty on line " + lineNumber);
-                }
-
-                Location start = new Location(locations[0]);
-                Location end = new Location(locations[1]);
-
-                int capacity;
-                // try to convert the capacity into an integer
-                try {
-                    capacity = Integer.parseInt(capacityTraffic[0]);
-                } catch (NumberFormatException e){
-                    throw new FormatException("The capacity of the corridor " +
-                            "on line " + lineNumber + " was not an integer " +
-                            "(found: " + capacityTraffic[0] + ")");
-                }
-
-                Corridor corridor;
-                try {
-                    corridor = new Corridor(start, end, capacity);
-                }  catch (IllegalArgumentException e){
-                    // if the locations are equal raise a format exception
-                    if (capacity > 0) {
-                        throw new FormatException("Start and end locations " +
-                                "of the corridor on line " + lineNumber
-                                + " are equal");
-                    }
-                    // ensure that the capacity of the corridor is positive
-                    throw new FormatException("Capacity of the corridor on " +
-                            "line " + lineNumber + " was less than or equal " +
-                            "to zero");
-                }
-
-                // ensure that the corridor is not a duplicate
-                if (traffic.getCorridorsWithTraffic().contains(corridor)){
-                    throw new FormatException("Corridor only line " + lineNumber
-                            + " is already described for the venue.");
-                }
-
-                int trafficAmount;
-                // try to convert the capacity into an integer
-                try {
-                    trafficAmount = Integer.parseInt(capacityTraffic[1]);
-                } catch (NumberFormatException e){
-                    throw new FormatException("The traffic of the corridor " +
-                            "on line " + lineNumber + " was not an integer " +
-                            "(found: " + capacityTraffic[1] + ")");
-                }
-
-                // ensure that the traffic does not exceed the capacity
-                if (trafficAmount > corridor.getCapacity()){
-                    throw new FormatException("Traffic of the corridor on line "
-                            + lineNumber + " exceeds the capacity.");
-                }
-
-                // update the traffic with the new corridor and traffic
-                // retrieved from the file
-                try {
-                    traffic.updateTraffic(corridor, trafficAmount);
-                } catch (InvalidTrafficException exception){
-                    throw new FormatException("Traffic on the corridor on line "
-                            + lineNumber + " is negative");
-                }
+                readCorridor(line, lineNumber, traffic);
             }
         }
         // ensure that the last line of the file is not empty
@@ -289,6 +207,113 @@ public class VenueReader {
         fileReader.close();
         scanner.close();
         return venues;
+    }
+
+
+    /**
+     * Reads a corridor and traffic from the provided line and adds the result
+     * to the provided traffic.
+     *
+     * The line should be in the form
+     * START_LOCATION, END_LOCATION, CAPACITY: TRAFFIC
+     * Where START_LOCATION is the string name of the starting location,
+     * END_LOCATION is the string name of the end location, CAPACITY is the
+     * maximum capacity of the corridor and TRAFFIC is the current amount
+     * of traffic in the given corridor.
+     *
+     * @param line The line to read for the corridor and traffic information.
+     * @param lineNumber The line number of the current line which is used for
+     *                   error messages.
+     * @param traffic The traffic to update with the data read from the line.
+     * @throws FormatException
+     *              if the line is not in the correct format for a corridor
+     *              traffic line.
+     */
+    private static void readCorridor(String line, int lineNumber, Traffic traffic)
+            throws FormatException {
+        // split the line up into the values expected
+        // could probably have been combined
+        // String[] capacity = locations[2].split("\\s*:\\s");
+        String[] locations = line.split("\\s*,\\s");
+        // ensure there are the correct amount of values
+        if (locations.length != 3){
+            throw new FormatException("Corridor is incorrectly " +
+                    "formatted on line " + lineNumber);
+        }
+
+        // split the last value into the capacity and traffic
+        String[] capacityTraffic = locations[2].split("\\s*:\\s");
+        // ensure there are the correct amount of values
+        if (capacityTraffic.length != 2){
+            throw new FormatException("Corridor is incorrectly " +
+                    "formatted on line " + lineNumber);
+        }
+
+        // ensure that the start location and end locations are not empty
+        if (locations[0].isEmpty() || locations[1].isEmpty()){
+            throw new FormatException("The start or end location " +
+                    "names were empty on line " + lineNumber);
+        }
+
+        Location start = new Location(locations[0]);
+        Location end = new Location(locations[1]);
+
+        int capacity;
+        // try to convert the capacity into an integer
+        try {
+            capacity = Integer.parseInt(capacityTraffic[0]);
+        } catch (NumberFormatException e){
+            throw new FormatException("The capacity of the corridor " +
+                    "on line " + lineNumber + " was not an integer " +
+                    "(found: " + capacityTraffic[0] + ")");
+        }
+
+        Corridor corridor;
+        try {
+            corridor = new Corridor(start, end, capacity);
+        }  catch (IllegalArgumentException e){
+            // if the locations are equal raise a format exception
+            if (capacity > 0) {
+                throw new FormatException("Start and end locations " +
+                        "of the corridor on line " + lineNumber
+                        + " are equal");
+            }
+            // ensure that the capacity of the corridor is positive
+            throw new FormatException("Capacity of the corridor on " +
+                    "line " + lineNumber + " was less than or equal " +
+                    "to zero");
+        }
+
+        // ensure that the corridor is not a duplicate
+        if (traffic.getCorridorsWithTraffic().contains(corridor)){
+            throw new FormatException("Corridor only line " + lineNumber
+                    + " is already described for the venue.");
+        }
+
+        int trafficAmount;
+        // try to convert the capacity into an integer
+        try {
+            trafficAmount = Integer.parseInt(capacityTraffic[1]);
+        } catch (NumberFormatException e){
+            throw new FormatException("The traffic of the corridor " +
+                    "on line " + lineNumber + " was not an integer " +
+                    "(found: " + capacityTraffic[1] + ")");
+        }
+
+        // ensure that the traffic does not exceed the capacity
+        if (trafficAmount > corridor.getCapacity()){
+            throw new FormatException("Traffic of the corridor on line "
+                    + lineNumber + " exceeds the capacity.");
+        }
+
+        // update the traffic with the new corridor and traffic
+        // retrieved from the file
+        try {
+            traffic.updateTraffic(corridor, trafficAmount);
+        } catch (InvalidTrafficException exception){
+            throw new FormatException("Traffic on the corridor on line "
+                    + lineNumber + " is negative");
+        }
     }
 
 }
