@@ -112,7 +112,108 @@ public class VenueReader {
      */
     public static List<Venue> read(String fileName) throws IOException,
             FormatException {
-        return null; // REMOVE THIS LINE AND WRITE THIS METHOD
+        FileReader fileReader;
+        try {
+            fileReader = new FileReader(fileName);
+        } catch (FileNotFoundException exception) {
+            throw new IOException();
+        }
+        Scanner scanner = new Scanner(fileReader);
+        ArrayList<Venue> venues = new ArrayList<>();
+        Venue currentVenue = null;
+        String venueName = null;
+        int venueCapacity = -1;
+        Traffic traffic = new Traffic();
+        String line = "";
+        int lineNumber = 0;
+        while (scanner.hasNextLine()) {
+            lineNumber++;
+            line = scanner.nextLine();
+            if (line.trim().isEmpty()){
+                if (venueName == null){
+                    throw new FormatException();
+                }
+                try {
+                    currentVenue = new Venue(venueName, venueCapacity, traffic);
+                } catch (InvalidTrafficException|NullPointerException exception) {
+                    throw new FormatException();
+                }
+                if (venues.contains(currentVenue)) {
+                    throw new FormatException();
+                }
+                venueName = null;
+                venueCapacity = -1;
+                traffic = new Traffic();
+                venues.add(currentVenue);
+                continue;
+            }
+
+            if(venueName == null){
+                venueName = line;
+            }
+            else if(venueCapacity == -1){
+                try {
+                    venueCapacity = Integer.parseInt(line.trim());
+                } catch (NumberFormatException exception){
+                    throw new FormatException();
+                }
+            } else {
+                String[] values = line.split("\\s*,\\s|\\s*:\\s");
+                if (values.length != 4){
+                    throw new FormatException();
+                }
+                if (values[0].isEmpty() || values[1].isEmpty()){
+                    throw new FormatException();
+                }
+                Location start = new Location(values[0]);
+                Location end = new Location(values[1]);
+                int capacity = Integer.parseInt(values[2]);
+                Corridor corridor;
+                try {
+                    corridor = new Corridor(start, end, capacity);
+                } catch (IllegalArgumentException|NullPointerException exception){
+                    throw new FormatException();
+                }
+                if (traffic.getCorridorsWithTraffic().contains(corridor)){
+                    throw new FormatException();
+                }
+                int trafficAmount = Integer.parseInt(values[3]);
+                if (trafficAmount > corridor.getCapacity()){
+                    throw new FormatException();
+                }
+                try {
+                    traffic.updateTraffic(corridor, trafficAmount);
+                } catch (InvalidTrafficException exception){
+                    throw new FormatException();
+                }
+            }
+        }
+        if(!line.isEmpty()){
+            throw new FormatException();
+        }
+
+        scanner.close();
+        return venues;
+    }
+
+    private class IncrementalVenue {
+        private String name;
+        private int capacity;
+        private Traffic traffic;
+
+        public IncrementalVenue(){
+            capacity = -1;
+            traffic = new Traffic();
+        }
+
+        public boolean hasName(){
+            return name != null;
+        }
+
+        public boolean hasCapacity(){
+            return capacity != -1;
+        }
     }
 
 }
+
